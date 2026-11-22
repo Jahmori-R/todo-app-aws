@@ -1,58 +1,75 @@
-<div class="flex items-center justify-center min-h-screen bg-gray-400 p-4">
-  <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
+<div class="min-h-screen w-full flex items-center justify-center bg-gray-400 p-4">
+<amplify-authenticator>
+  <ng-template amplifySlot="authenticated" let-signOut="signOut">
+    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-400 p-4">
+      <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
 
-    <!-- Header Section -->
-    <div class="px-6 py-5 border-b border-gray-100">
-      <h1 class="text-center text-2xl font-bold text-gray-800 tracking-tight">TODO List</h1>
-    </div>
+        <!-- Header Section -->
+        <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800 tracking-tight">TODO List</h1>
+            @if (userEmail()) {
+              <p class="text-xs text-gray-500 truncate">{{ userEmail() }}</p>
+            }
+          </div>
+          <button
+            type="button"
+            (click)="signOut()"
+            class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer shrink-0">
+            Sign out
+          </button>
+        </div>
 
-    <!-- Input Section -->
-    <div class="p-6 bg-slate-50 border-b border-gray-100">
-      <div class="flex flex-col sm:flex-row gap-3">
-        <input [(ngModel)]="newTask" (keydown.enter)="addTask()" type="text" placeholder="What needs to be done?"
-          class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
-        <button type="button" (click)="addTask()"
-          class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium rounded-lg shadow-sm transition cursor-pointer">
-          Add
-        </button>
+        <!-- Input Section -->
+        <div class="p-6 bg-slate-50 border-b border-gray-100">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input [(ngModel)]="newTask" (keydown.enter)="addTask()" type="text" placeholder="What needs to be done?"
+              class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
+            <button type="button" (click)="addTask()"
+              class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium rounded-lg shadow-sm transition cursor-pointer">
+              Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Task Section -->
+        <div class="p-6 min-h-[250px] flex flex-col justify-start items-center text-gray-400">
+          @if (todos().length === 0) {
+            <p class="text-sm">Your tasks will appear here...</p>
+          } @else {
+            <ul class="w-full space-y-2">
+              @for (item of todos(); track item.id) {
+                <li
+                  class="group w-full bg-white rounded-xl px-4 py-3.5 border border-gray-200/80 shadow-xs text-gray-800 flex justify-between items-center gap-4 transition-all duration-150 hover:border-blue-400 hover:shadow-sm">
+                  <label class="flex items-center gap-3.5 cursor-pointer min-w-0 flex-1">
+                    <input type="checkbox" [ngModel]="item.completed" (ngModelChange)="toggleTask(item)"
+                      class="w-6 h-6 rounded border-gray-300 cursor-pointer shrink-0" />
+                    <span class="text-md sm:text-base font-medium leading-snug break-words transition-colors duration-150"
+                      [class.line-through]="item.completed" [class.text-gray-400]="item.completed">
+                      {{ item.content }}
+                    </span>
+                  </label>
+
+                  <button type="button" aria-label="Delete task" (click)="deleteTask(item.id)"
+                    class="shrink-0 cursor-pointer p-2 text-gray-400 bg-transparent rounded-lg transition-colors duration-150 hover:text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-trash">
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
       </div>
     </div>
-
-    <!-- Task Section -->
-    <div class="p-6 min-h-[250px] flex flex-col justify-start items-center text-gray-400">
-      @if (todos().length === 0) {
-      <p class="text-sm">Your tasks will appear here...</p>
-      } @else {
-      <ul class="w-full space-y-2">
-        @for (item of todos(); track item.id) {
-        <li
-          class="group w-full bg-white rounded-xl px-4 py-3.5 border border-gray-200/80 shadow-xs text-gray-800 flex justify-between items-center gap-4 transition-all duration-150 hover:border-blue-400 hover:shadow-sm">
-          <label class="flex items-center gap-3.5 cursor-pointer min-w-0 flex-1">
-            <input type="checkbox" [ngModel]="item.completed" (ngModelChange)="toggleTask(item)"
-              class="w-6 h-6 rounded border-gray-300 cursor-pointer shrink-0" />
-            <span class="text-md sm:text-base font-medium leading-snug break-words transition-colors duration-150"
-              [class.line-through]="item.completed" [class.text-gray-400]="item.completed">
-              {{ item.content }}
-            </span>
-          </label>
-
-          <button type="button" aria-label="Delete task" (click)="deleteTask(item.id)"
-            class="shrink-0 cursor-pointer p-2 text-gray-400 bg-transparent rounded-lg transition-colors duration-150 hover:text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/30">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-trash">
-              <path d="M10 11v6" />
-              <path d="M14 11v6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-              <path d="M3 6h18" />
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-          </button>
-        </li>
-        }
-      </ul>
-      }
-    </div>
-
-  </div>
+  </ng-template>
+</amplify-authenticator>
 </div>
